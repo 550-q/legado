@@ -123,6 +123,7 @@
         <!-- 阅读界面 -->
         <activity
             android:name=".ui.book.read.ReadBookActivity"
+            android:excludeFromRecents="true"
             android:configChanges="locale|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="true"
             android:launchMode="singleTask">
