@@ -148,8 +148,10 @@ object BookHelp {
             book.getFolderName(),
             bookChapter.getFileName(),
         ).writeText(content)
-        bookChapter.wordCount = StringUtils.wordCountFormat(content.length)
-        appDb.bookChapterDao.update(bookChapter)
+        if (book.isOnLineTxt) {
+            bookChapter.wordCount = StringUtils.wordCountFormat(content.length)
+            appDb.bookChapterDao.update(bookChapter)
+        }
     }
 
     suspend fun saveImages(
