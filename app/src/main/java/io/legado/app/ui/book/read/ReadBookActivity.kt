@@ -128,7 +128,6 @@ import io.legado.app.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -313,6 +312,8 @@ class ReadBookActivity : BaseReadBookActivity(),
         upSystemUiVisibility()
         if (hasFocus) {
             binding.readMenu.upBrightnessState()
+        } else if (!menuLayoutIsVisible) {
+            ReadBook.cancelPreDownloadTask()
         }
     }
 
@@ -320,6 +321,12 @@ class ReadBookActivity : BaseReadBookActivity(),
         super.onConfigurationChanged(newConfig)
         upSystemUiVisibility()
         binding.readView.upStatusBar()
+    }
+
+    override fun onTopResumedActivityChanged(isTopResumedActivity: Boolean) {
+        if (!isTopResumedActivity) {
+            ReadBook.cancelPreDownloadTask()
+        }
     }
 
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
@@ -357,6 +364,7 @@ class ReadBookActivity : BaseReadBookActivity(),
         autoPageStop()
         backupJob?.cancel()
         ReadBook.saveRead()
+        ReadBook.cancelPreDownloadTask()
         unregisterReceiver(timeBatteryReceiver)
         upSystemUiVisibility()
         if (!BuildConfig.DEBUG) {
