@@ -34,8 +34,7 @@
         <!-- 主入口 -->
         <activity
             android:name=".ui.welcome.WelcomeActivity"
-            android:exported="true"
-            android:excludeFromRecents="true">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -47,8 +46,7 @@
             android:name=".ui.welcome.Launcher1"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/launcher1"
-            android:excludeFromRecents="true">
+            android:icon="@mipmap/launcher1">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -60,8 +58,7 @@
             android:name=".ui.welcome.Launcher2"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/launcher2"
-            android:excludeFromRecents="true">
+            android:icon="@mipmap/launcher2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -73,8 +70,7 @@
             android:name=".ui.welcome.Launcher3"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/launcher3"
-            android:excludeFromRecents="true">
+            android:icon="@mipmap/launcher3">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -86,8 +82,7 @@
             android:name=".ui.welcome.Launcher4"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/launcher4"
-            android:excludeFromRecents="true">
+            android:icon="@mipmap/launcher4">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -99,8 +94,7 @@
             android:name=".ui.welcome.Launcher5"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/launcher5"
-            android:excludeFromRecents="true">
+            android:icon="@mipmap/launcher5">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -112,8 +106,7 @@
             android:name=".ui.welcome.Launcher6"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/launcher6"
-            android:excludeFromRecents="true">
+            android:icon="@mipmap/launcher6">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -126,15 +119,13 @@
             android:alwaysRetainTaskState="true"
             android:configChanges="locale|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|uiMode"
             android:exported="true"
-            android:launchMode="singleTask"
-            android:excludeFromRecents="true" />
+            android:launchMode="singleTask" />
         <!-- 阅读界面 -->
         <activity
             android:name=".ui.book.read.ReadBookActivity"
             android:configChanges="locale|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout"
             android:exported="true"
-            android:launchMode="singleTask"
-            android:excludeFromRecents="true">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="com.samsung.android.support.REMOTE_ACTION" />
             </intent-filter>
