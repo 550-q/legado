@@ -48,6 +48,7 @@ import io.legado.app.ui.book.manga.config.MangaFooterSettingDialog
 import io.legado.app.ui.book.manga.entities.BaseMangaPage
 import io.legado.app.ui.book.manga.entities.MangaPage
 import io.legado.app.ui.book.manga.recyclerview.MangaAdapter
+import io.legado.app.ui.book.manga.recyclerview.MangaLayoutManager
 import io.legado.app.ui.book.manga.recyclerview.ScrollTimer
 import io.legado.app.ui.book.read.MangaMenu
 import io.legado.app.ui.book.read.ReadBookActivity.Companion.RESULT_DELETED
@@ -80,7 +81,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
     MangaColorFilterDialog.Callback, ScrollTimer.ScrollCallback {
 
     private val mLayoutManager by lazy {
-        LinearLayoutManager(this)
+        MangaLayoutManager(this)
     }
     private val mAdapter: MangaAdapter by lazy {
         MangaAdapter(this)
@@ -189,7 +190,9 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
         val mangaColorFilter =
             GSON.fromJsonObject<MangaColorFilterConfig>(AppConfig.mangaColorFilter).getOrNull()
                 ?: MangaColorFilterConfig()
-        mAdapter.setMangaImageColorFilter(mangaColorFilter)
+        mAdapter.run {
+            setMangaImageColorFilter(mangaColorFilter)
+        }
         setHorizontalScroll(AppConfig.enableMangaHorizontalScroll)
         binding.recyclerView.run {
             adapter = mAdapter
@@ -202,7 +205,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             setPreScrollListener { _, _, _, position ->
                 if (mAdapter.isNotEmpty()) {
                     val item = mAdapter.getItem(position)
-                    if (item is MangaPage) {
+                    if (item is BaseMangaPage) {
                         if (ReadManga.durChapterIndex < item.chapterIndex) {
                             ReadManga.moveToNextChapter()
                         } else if (ReadManga.durChapterIndex > item.chapterIndex) {
@@ -211,15 +214,17 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                             ReadManga.durChapterPos = item.index
                             ReadManga.curPageChanged()
                         }
-                        binding.mangaMenu.upSeekBar(item.index, item.imageCount)
-                        upInfoBar(item)
+                        if (item is MangaPage) {
+                            binding.mangaMenu.upSeekBar(item.index, item.imageCount)
+                            upInfoBar(item)
+                        }
                     }
                 }
             }
         }
         binding.webtoonFrame.run {
             onTouchMiddle {
-                if (!binding.mangaMenu.isVisible) {
+                if (!binding.mangaMenu.isVisible && !loadingViewVisible) {
                     binding.mangaMenu.runMenuIn()
                 }
             }
@@ -560,6 +565,12 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
                     mPagerSnapHelper.attachToRecyclerView(binding.recyclerView)
                 }
             }
+
+            R.id.menu_hide_manga_title -> {
+                item.isChecked = !item.isChecked
+                AppConfig.hideMangaTitle = item.isChecked
+                ReadManga.loadContent()
+            }
         }
         return super.onCompatOptionsItemSelected(item)
     }
@@ -635,6 +646,7 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             getString(R.string.manga_auto_page_speed, AppConfig.mangaAutoPageSpeed)
         menu.findItem(R.id.menu_enable_horizontal_scroll).isChecked =
             AppConfig.enableMangaHorizontalScroll
+        menu.findItem(R.id.menu_hide_manga_title).isChecked = AppConfig.hideMangaTitle
     }
 
     private fun setDisableMangaScale(disable: Boolean) {
@@ -757,5 +769,20 @@ class ReadMangaActivity : VMBaseActivity<ActivityMangaBinding, ReadMangaViewMode
             upInfoBar(mAdapter.getItem(itemPos))
             ReadManga.durChapterPos = index
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                scrollToPrev()
+                return true
+            }
+
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                scrollToNext()
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }

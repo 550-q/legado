@@ -33,6 +33,7 @@ import com.script.ScriptBindings
 import com.script.ScriptContext
 import com.script.ScriptException
 import com.script.SimpleBindings
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.withContext
 import org.mozilla.javascript.Callable
@@ -56,9 +57,7 @@ import java.security.AccessControlException
 import java.security.AccessController
 import java.security.AllPermission
 import java.security.PrivilegedAction
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 
 /**
  * Implementation of `ScriptEngine` using the Mozilla Rhino
@@ -93,12 +92,14 @@ object RhinoScriptEngine : AbstractScriptEngine(), Invocable, Compilable {
     ): Any? {
         val cx = Context.enter() as RhinoContext
         val previousCoroutineContext = cx.coroutineContext
-        if (coroutineContext != null) {
+        if (coroutineContext != null && coroutineContext[Job] != null) {
             cx.coroutineContext = coroutineContext
         }
         cx.allowScriptRun = true
+        cx.recursiveCount++
         val ret: Any?
         try {
+            cx.checkRecursive()
             var filename = this["javax.script.filename"] as? String
             filename = filename ?: "<Unknown source>"
             ret = cx.evaluateReader(scope, reader, filename, 1, null)
@@ -117,6 +118,7 @@ object RhinoScriptEngine : AbstractScriptEngine(), Invocable, Compilable {
         } finally {
             cx.coroutineContext = previousCoroutineContext
             cx.allowScriptRun = false
+            cx.recursiveCount--
             Context.exit()
         }
         return unwrapReturnValue(ret)
@@ -128,7 +130,9 @@ object RhinoScriptEngine : AbstractScriptEngine(), Invocable, Compilable {
         var ret: Any?
         withContext(VMBridgeReflect.contextLocal.asContextElement()) {
             cx.allowScriptRun = true
+            cx.recursiveCount++
             try {
+                cx.checkRecursive()
                 var filename = this@RhinoScriptEngine["javax.script.filename"] as? String
                 filename = filename ?: "<Unknown source>"
                 val script = cx.compileReader(reader, filename, 1, null)
@@ -139,11 +143,8 @@ object RhinoScriptEngine : AbstractScriptEngine(), Invocable, Compilable {
                     while (true) {
                         try {
                             @Suppress("UNCHECKED_CAST")
-                            val suspendFunction =
-                                pending.applicationState as Function1<Continuation<Any?>, Any?>
-                            val functionResult = suspendCoroutineUninterceptedOrReturn { cout ->
-                                suspendFunction.invoke(cout)
-                            }
+                            val suspendFunction = pending.applicationState as suspend () -> Any?
+                            val functionResult = suspendFunction()
                             val continuation = pending.continuation
                             ret = cx.resumeContinuation(continuation, scope, functionResult)
                             break
@@ -166,6 +167,7 @@ object RhinoScriptEngine : AbstractScriptEngine(), Invocable, Compilable {
                 throw ScriptException(var14)
             } finally {
                 cx.allowScriptRun = false
+                cx.recursiveCount--
                 Context.exit()
             }
         }
