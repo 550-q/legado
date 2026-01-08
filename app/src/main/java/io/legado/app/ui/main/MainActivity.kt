@@ -110,7 +110,11 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                 if (BaseReadAloudService.pause) {
                     finish()
                 } else {
-                    moveTaskToBack(true)
+                    if (AppConfig.hideAppInRecentTasks) {
+                        finishAndRemoveTask()
+                    } else {
+                        moveTaskToBack(true)
+                    }
                 }
             }
         }
