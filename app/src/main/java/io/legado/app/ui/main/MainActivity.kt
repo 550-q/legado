@@ -2,6 +2,7 @@
 
 package io.legado.app.ui.main
 
+import android.os.Build
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.MenuItem
@@ -88,15 +89,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
     private val onUpBooksBadgeView by lazy {
         binding.bottomNavigationView.addBadgeView(0)
     }
-
-    override fun onUserLeaveHint() {
-        super.onUserLeaveHint()
-        if (AppConfig.hideAppInRecentTasks) {
-            finishAndRemoveTask()
-        }
-    }
-
-
+    
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         upBottomMenu()
         initView()
@@ -116,7 +109,12 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
                 exitTime = System.currentTimeMillis()
             } else {
                 if (AppConfig.hideAppInRecentTasks) {
-                    finishAndRemoveTask()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        finishAndRemoveTask()
+                    } else {
+                        // 在不支持的设备上使用兼容方法
+                        finish()
+                    }
                 } else {
                     if (BaseReadAloudService.pause) {
                         finish()
