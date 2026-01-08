@@ -65,14 +65,14 @@
             android:title="@string/sys_tts_config"
             android:summary="@string/sys_tts_config_summary"
             android:key="sysTtsConfig"
-            app:iconSpaceReserved="false"
+            app:iconSpaceReserved="false" />
 
         <io.legado.app.lib.prefs.SwitchPreference
             android:defaultValue="false"
             android:title="隐藏后台"
             android:summary="在最近任务中隐藏本应用"
             android:key="hideAppInRecentTasks"
-            app:iconSpaceReserved="false" /
+            app:iconSpaceReserved="false" />
 
     </io.legado.app.lib.prefs.PreferenceCategory>
 
