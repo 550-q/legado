@@ -175,6 +175,8 @@ object PreferKey {
     const val streamReadAloudAudio = "streamReadAloudAudio"
     const val pauseReadAloudWhilePhoneCalls = "pauseReadAloudWhilePhoneCalls"
     const val readAloudByMediaButton = "readAloudByMediaButton"
+    // 隐藏后台（在最近任务中隐藏本应用）
+    const val hideAppInRecentTasks = "hideAppInRecentTasks"
     const val showMangaUi = "showMangaUi"
     const val disableMangaScale = "disableMangaScale"
     const val disableMangaPageAnim = "disableMangaPageAnim"
