@@ -89,6 +89,14 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         binding.bottomNavigationView.addBadgeView(0)
     }
 
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (AppConfig.hideAppInRecentTasks) {
+            finishAndRemoveTask()
+        }
+    }
+
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         upBottomMenu()
         initView()
